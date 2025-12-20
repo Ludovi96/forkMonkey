@@ -233,18 +233,7 @@ class TestForkMonkeyE2E:
                             print(f"✅ Workflow completed successfully!")
                             return
                         elif conclusion == "failure":
-                            # Check if monkey_data files exist (partial success)
-                            print("⚠️ Workflow marked as failure, checking if monkey was initialized...")
-                            check_result = run_gh([
-                                "api", f"/repos/{test_repo['full_name']}/contents/monkey_data/dna.json"
-                            ], check=False)
-                            
-                            if check_result.returncode == 0:
-                                print("✅ Workflow partially succeeded - monkey_data exists!")
-                                print("   (Failure was likely on non-critical step like issue creation)")
-                                return
-                            else:
-                                pytest.fail(f"Workflow failed and monkey_data not created")
+                            pytest.fail(f"Workflow failed with conclusion: {conclusion}")
             
             elapsed = int(time.time() - start_time)
             print(f"  ... waiting ({elapsed}s elapsed)")
