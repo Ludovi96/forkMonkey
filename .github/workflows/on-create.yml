@@ -49,7 +49,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          git add monkey_data/ README.md
+          git add monkey_data/ monkey_evolution/ README.md
           git commit -m "🐵 Initialize monkey" || echo "No changes to commit"
           git push
       
