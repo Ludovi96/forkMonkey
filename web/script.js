@@ -327,17 +327,18 @@ const ForkMonkey = {
     /**
      * Get evolution SVG for a specific timestamp
      * SVGs are stored in monkey_evolution with format: YYYY-MM-DD_HH-mm_monkey.svg
+     * Note: Timestamps are in UTC (from GitHub Actions), so we use UTC methods
      */
     async getEvolutionSvg(timestamp) {
         const basePath = this.getBasePath();
         const date = new Date(timestamp);
 
-        // Format: YYYY-MM-DD_HH-mm_monkey.svg
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        // Format: YYYY-MM-DD_HH-mm_monkey.svg (using UTC to match GitHub Actions)
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
 
         const filename = `${year}-${month}-${day}_${hours}-${minutes}_monkey.svg`;
         const svgPath = `${basePath}monkey_evolution/${filename}`;
