@@ -26,13 +26,15 @@ class GitHubService:
         
         self.github = Github(self.token)
         self.source_repo = os.getenv('FORKMONKEY_SOURCE_REPO', 'roeiba/forkMonkey')
+        self.staging_org = os.getenv('FORKMONKEY_STAGING_ORG', 'forkZoo')
     
-    def fork_repository(self, repo_name: Optional[str] = None) -> Dict[str, Any]:
+    def fork_repository(self, repo_name: Optional[str] = None, organization: Optional[str] = None) -> Dict[str, Any]:
         """
-        Fork the ForkMonkey repository to the authenticated user's account.
+        Fork the ForkMonkey repository to an organization or the authenticated user's account.
         
         Args:
             repo_name: Optional custom name for the forked repository.
+            organization: Optional organization to fork into (defaults to staging org).
             
         Returns:
             Dictionary with fork information.
@@ -40,18 +42,18 @@ class GitHubService:
         try:
             source = self.github.get_repo(self.source_repo)
             
-            # Fork to authenticated user's account
-            fork = source.create_fork()
+            # Fork to staging organization to avoid self-fork issues
+            target_org = organization or self.staging_org
+            fork = source.create_fork(organization=target_org)
             
             # Wait for fork to be ready
             time.sleep(5)
             
-            # Safety check: Prevent renaming the source repo if we are the owner
-            # (GitHub API returns source repo if you try to fork your own repo)
+            # Safety check: Ensure we actually created a fork (not returned source repo)
             if fork.full_name == self.source_repo:
-                 return {
+                return {
                     'success': False,
-                    'error': 'Cannot fork source repository to its own owner (Self-fork detected). Use a different account for the backend.'
+                    'error': f'Fork failed - repository already exists or cannot fork to {target_org}'
                 }
             
             # Rename if custom name provided
