@@ -90,3 +90,50 @@ jobs:
         run: |
           echo "📊 Current monkey stats:"
           python src/cli.py show
+      
+      - name: Post Evolution Summary
+        if: always()
+        run: |
+          # Extract stats for summary
+          if [ -f "monkey_data/stats.json" ]; then
+            AGE=$(python -c "import json; print(json.load(open('monkey_data/stats.json')).get('age_days', 0))")
+            RARITY=$(python -c "import json; print(json.load(open('monkey_data/stats.json')).get('rarity_score', 0))")
+            GEN=$(python -c "import json; print(json.load(open('monkey_data/stats.json')).get('generation', 1))")
+            MUTATIONS=$(python -c "import json; print(json.load(open('monkey_data/stats.json')).get('total_mutations', 0))")
+          else
+            AGE=0
+            RARITY=0
+            GEN=1
+            MUTATIONS=0
+          fi
+          
+          # Write to GitHub Step Summary
+          echo "## ✨ Evolution Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Your monkey evolved today! 🐵" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stat | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 📅 Age | $AGE days |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⭐ Rarity | $RARITY/100 |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🧬 Generation | $GEN |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔄 Mutations | $MUTATIONS |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🐦 Share Your Evolution!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Copy this tweet:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "Day $AGE of my #ForkMonkey experiment! 🐵" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Rarity: $RARITY/100" >> $GITHUB_STEP_SUMMARY
+          echo "Generation: $GEN" >> $GITHUB_STEP_SUMMARY
+          echo "Total mutations: $MUTATIONS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Fork yours free: github.com/${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#AI #GitHub #OpenSource" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **View your monkey:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
