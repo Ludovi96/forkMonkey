@@ -8,7 +8,7 @@ thread:
       It's all free, public and uses free mechanism of Github.
 
       🧵👇
-      https://github.com/forkZoo/forkMonkey
+      https://github.com/roeiba/forkMonkey
 
   - content: |
       1/ 🧬 Genetics
@@ -39,7 +39,7 @@ thread:
       4/ 🔗 Join the experiment
       
       Fork your own monkey and start your lineage:
-      https://github.com/forkZoo/forkMonkey
+      https://github.com/roeiba/forkMonkey
       
       Let's see how weird these evolutionary lines can get! 
       

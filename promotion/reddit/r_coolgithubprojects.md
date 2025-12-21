@@ -4,7 +4,7 @@ Hey r/coolgithubprojects,
 
 Just released **ForkMonkey**, a Python-based project that turns a repository into an autonomous digital pet. It's all free, public and uses free mechanism of Github.
 
-**Repository:** [https://github.com/forkZoo/forkMonkey](https://github.com/forkZoo/forkMonkey)
+**Repository:** [https://github.com/roeiba/forkMonkey](https://github.com/roeiba/forkMonkey)
 
 ### How it works technically:
 1.  **Python Core**: A genetic engine (`src/genetics.py`) manages DNA strings and trait inheritance.

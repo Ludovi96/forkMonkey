@@ -18,6 +18,6 @@ I built this to experiment with "autonomous agents" that don't require me to pay
 It's all free, public and uses free mechanism of Github.
 
 **Check it out here:**
-[https://github.com/forkZoo/forkMonkey](https://github.com/forkZoo/forkMonkey)
+[https://github.com/roeiba/forkMonkey](https://github.com/roeiba/forkMonkey)
 
 Would love to hear what you think about the "Repo as a Pet" concept!

@@ -5,7 +5,7 @@ Hi r/generative!
 I've been playing around with procedural generation and genetic inheritance. I built a system called **ForkMonkey** where the "agents" are GitHub repositories. It's all free, public and uses free mechanism of Github.
 
 **The output:** [Imgur link or upload image of 4-6 monkeys]
-**The Code:** [https://github.com/forkZoo/forkMonkey](https://github.com/forkZoo/forkMonkey)
+**The Code:** [https://github.com/roeiba/forkMonkey](https://github.com/roeiba/forkMonkey)
 
 ### The Generative System:
 *   **DNA**: A 64-bit style hash representing traits (Color, Expression, Accessories, Pattern, Background).

@@ -5,7 +5,7 @@ Hey Pythonistas,
 I just finished a side project and I'd love some eyes on the code.
 It's called **ForkMonkey**, and it's a Tamagotchi-style pet that lives in a GitHub repo. It's all free, public and uses free mechanism of Github.
 
-**Repo:** [https://github.com/forkZoo/forkMonkey](https://github.com/forkZoo/forkMonkey)
+**Repo:** [https://github.com/roeiba/forkMonkey](https://github.com/roeiba/forkMonkey)
 
 **Local Setup:**
 I used `uv` for dependency management (highly recommend!) and `typer` + `rich` for the CLI interface.

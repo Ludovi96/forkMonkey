@@ -5,7 +5,7 @@ Hi r/ArtificialInteligence,
 I'm sharing an open-source experiment that combines old-school **Genetic Algorithms** with modern **LLMs**.
 
 **Project:** ForkMonkey
-**Link:** [https://github.com/forkZoo/forkMonkey](https://github.com/forkZoo/forkMonkey)
+**Link:** [https://github.com/roeiba/forkMonkey](https://github.com/roeiba/forkMonkey)
 
 **The Experiment:**
 I wanted to create "Life" that survives on a code hosting platform.

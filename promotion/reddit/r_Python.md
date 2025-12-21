@@ -5,7 +5,7 @@ Hey r/Python,
 I wanted to show off a project I built using Python and the new free **GitHub Models** (Azure AI) integration.
 
 **ForkMonkey** is a digital pet that lives in a repo. It doesn't use any external API keys or servers. It's all free, public and uses free mechanism of Github.
-[https://github.com/forkZoo/forkMonkey](https://github.com/forkZoo/forkMonkey)
+[https://github.com/roeiba/forkMonkey](https://github.com/roeiba/forkMonkey)
 
 ### Technical Implementation:
 The entire backend is a CLI tool (`src/cli.py`) built with `click` and `rich`.
@@ -25,4 +25,4 @@ The entire backend is a CLI tool (`src/cli.py`) built with `click` and `rich`.
 It was super easy to handle the SVG generation (`cairosvg`) and the logic for the genetic inheritance (using `pydantic` for the DNA schema).
 
 Code is here if you want to roast my implementation:
-[https://github.com/forkZoo/forkMonkey/tree/main/src](https://github.com/forkZoo/forkMonkey/tree/main/src)
+[https://github.com/roeiba/forkMonkey/tree/main/src](https://github.com/roeiba/forkMonkey/tree/main/src)

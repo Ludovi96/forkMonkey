@@ -19,6 +19,6 @@ I think this is a cool example of what you can build with "Serverless AI" now. Y
 
 It's basically an autonomous agent that costs $0 to run. It's all free, public and uses free mechanism of Github.
 
-**Repo:** [https://github.com/forkZoo/forkMonkey](https://github.com/forkZoo/forkMonkey)
+**Repo:** [https://github.com/roeiba/forkMonkey](https://github.com/roeiba/forkMonkey)
 
 Let me know what you think about using LLMs for "Artificial Life" simulations like this!
