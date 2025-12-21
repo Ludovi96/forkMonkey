@@ -357,5 +357,156 @@ def update_readme():
     console.print("[green]✅ README updated![/green]")
 
 
+@cli.command()
+@click.option('--copy', '-c', is_flag=True, help='Copy tweet to clipboard')
+@click.option('--evolution', '-e', is_flag=True, help='Share latest evolution')
+@click.option('--achievement', '-a', type=str, help='Share specific achievement')
+def share(copy, evolution, achievement):
+    """Generate a shareable tweet about your monkey"""
+    console.print("\n🐦 [bold cyan]Generating shareable tweet...[/bold cyan]\n")
+    
+    storage = MonkeyStorage()
+    dna = storage.load_dna()
+    
+    if not dna:
+        console.print("[red]❌ No monkey found! Run 'init' first.[/red]")
+        return
+    
+    # Get stats
+    history = storage.get_history()
+    age_days = len(history)
+    rarity = dna.get_rarity_score()
+    repo = os.environ.get('GITHUB_REPOSITORY', 'roeiba/forkMonkey')
+    
+    # Get notable trait (highest rarity)
+    from src.genetics import Rarity
+    notable_trait = None
+    highest_rarity = 0
+    rarity_order = {
+        Rarity.COMMON: 1,
+        Rarity.UNCOMMON: 2,
+        Rarity.RARE: 3,
+        Rarity.EPIC: 4,
+        Rarity.LEGENDARY: 5
+    }
+    
+    for cat, trait in dna.traits.items():
+        if rarity_order.get(trait.rarity, 0) > highest_rarity:
+            highest_rarity = rarity_order[trait.rarity]
+            notable_trait = f"{trait.value} ({trait.rarity.value})"
+    
+    # Generate tweet based on context
+    if evolution and history:
+        # Share latest evolution
+        latest = history[-1]
+        tweet = f"""Day {age_days} of my #ForkMonkey experiment! 🐵
+
+Today's evolution: {latest.get('story', 'Something changed!')}
+
+Rarity: {rarity:.1f}/100
+Generation: {dna.generation}
+
+Fork yours free: github.com/{repo}
+
+#AI #GitHub #OpenSource"""
+    elif achievement:
+        # Share achievement
+        tweet = f"""🏆 Just unlocked "{achievement}" on my ForkMonkey!
+
+My monkey is Gen {dna.generation} with {rarity:.1f}/100 rarity.
+
+Join the experiment: github.com/{repo}
+
+#ForkMonkey #AI"""
+    else:
+        # Default share
+        tweet = f"""Check out my ForkMonkey! 🐵
+
+Rarity: {rarity:.1f}/100
+Generation: {dna.generation}
+Age: {age_days} days
+Notable trait: {notable_trait or 'evolving...'}
+
+It evolves daily with AI and lives forever on GitHub.
+
+Fork yours free: github.com/{repo}
+
+#ForkMonkey #AI #GitHub #OpenSource"""
+    
+    # Display in panel
+    panel = Panel(
+        tweet,
+        title="📋 Copy this tweet",
+        border_style="cyan",
+        padding=(1, 2)
+    )
+    console.print(panel)
+    
+    # Try to copy to clipboard
+    if copy:
+        try:
+            import pyperclip
+            pyperclip.copy(tweet)
+            console.print("\n[green]✅ Copied to clipboard![/green]")
+        except ImportError:
+            console.print("\n[yellow]⚠️  Install pyperclip for clipboard support: pip install pyperclip[/yellow]")
+        except Exception as e:
+            console.print(f"\n[yellow]⚠️  Could not copy: {e}[/yellow]")
+    
+    # Show Twitter link
+    import urllib.parse
+    encoded = urllib.parse.quote(tweet)
+    twitter_url = f"https://twitter.com/intent/tweet?text={encoded}"
+    
+    console.print(f"\n[dim]Or open directly:[/dim]")
+    console.print(f"[link={twitter_url}]{twitter_url[:80]}...[/link]")
+
+
+@cli.command()
+def leaderboard():
+    """Show your position on the rarity leaderboard"""
+    console.print("\n🏆 [bold cyan]Rarity Leaderboard[/bold cyan]\n")
+    
+    storage = MonkeyStorage()
+    dna = storage.load_dna()
+    
+    if not dna:
+        console.print("[red]❌ No monkey found! Run 'init' first.[/red]")
+        return
+    
+    rarity = dna.get_rarity_score()
+    
+    # Show current monkey stats
+    table = Table(title="Your Monkey")
+    table.add_column("Stat", style="cyan")
+    table.add_column("Value", style="green")
+    
+    table.add_row("Rarity Score", f"{rarity:.1f}/100")
+    table.add_row("Generation", str(dna.generation))
+    table.add_row("Mutations", str(dna.mutation_count))
+    
+    console.print(table)
+    
+    # Rarity tier
+    if rarity >= 90:
+        tier = "🦄 LEGENDARY"
+        tier_color = "magenta"
+    elif rarity >= 70:
+        tier = "💜 EPIC"
+        tier_color = "purple"
+    elif rarity >= 50:
+        tier = "💙 RARE"
+        tier_color = "blue"
+    elif rarity >= 30:
+        tier = "💚 UNCOMMON"
+        tier_color = "green"
+    else:
+        tier = "⚪ COMMON"
+        tier_color = "white"
+    
+    console.print(f"\n[{tier_color}]Your tier: {tier}[/{tier_color}]")
+    console.print("\n[dim]View full leaderboard at your GitHub Pages site![/dim]")
+
+
 if __name__ == "__main__":
     cli()
