@@ -1,0 +1,206 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - 'Makefile'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - 'Makefile'
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
+    inputs:
+      burn_in:
+        description: 'Run burn-in loop for flaky detection'
+        required: false
+        default: false
+        type: boolean
+      iterations:
+        description: 'Number of burn-in iterations (3-10)'
+        required: false
+        default: '3'
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # =============================================================================
+  # Main Test Suite
+  # =============================================================================
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run CI Tests
+        run: make ci-test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            test-results.xml
+            coverage.xml
+          retention-days: 30
+
+      - name: Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v4
+        continue-on-error: true
+        with:
+          file: coverage.xml
+          fail_ci_if_error: false
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f test-results.xml ]; then
+            TESTS=$(grep -o 'tests="[0-9]*"' test-results.xml | head -1 | grep -o '[0-9]*')
+            FAILURES=$(grep -o 'failures="[0-9]*"' test-results.xml | head -1 | grep -o '[0-9]*')
+            ERRORS=$(grep -o 'errors="[0-9]*"' test-results.xml | head -1 | grep -o '[0-9]*')
+            
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Tests Run | $TESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failures | $FAILURES |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⚠️ Errors | $ERRORS |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f coverage.xml ]; then
+            COVERAGE=$(grep -o 'line-rate="[0-9.]*"' coverage.xml | head -1 | grep -o '[0-9.]*')
+            COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.1f")
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📊 **Coverage**: ${COVERAGE_PCT}%" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # =============================================================================
+  # Burn-In Loop (Flaky Test Detection)
+  # =============================================================================
+  burn-in:
+    name: 🔥 Burn-In Loop
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' && github.event.inputs.burn_in == 'true' ||
+      github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'burn-in')
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Burn-In Loop
+        run: |
+          ITERATIONS=${{ github.event.inputs.iterations || '3' }}
+          echo "🔥 Running burn-in with $ITERATIONS iterations..."
+          
+          for i in $(seq 1 $ITERATIONS); do
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🔥 Burn-in iteration $i/$ITERATIONS"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            python -m pytest tests/ -v --tb=line -q || exit 1
+          done
+          
+          echo ""
+          echo "✅ Burn-in complete: No flaky tests detected!"
+
+      - name: Burn-In Summary
+        if: always()
+        run: |
+          echo "## 🔥 Burn-In Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Iterations**: ${{ github.event.inputs.iterations || '3' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ **All iterations passed!** No flaky tests detected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Flaky test detected!** Test failed during burn-in." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Review the logs to identify the flaky test." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # =============================================================================
+  # Weekly Burn-In (Scheduled)
+  # =============================================================================
+  weekly-burn-in:
+    name: 📅 Weekly Stability Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Weekly Burn-In (10 iterations)
+        run: |
+          echo "📅 Weekly stability check - 10 iterations..."
+          make test-burn-in
+
+      - name: Weekly Summary
+        if: always()
+        run: |
+          echo "## 📅 Weekly Stability Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Iterations**: 10" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ **Test suite is stable!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Flaky tests detected!** Review and fix before next release." >> $GITHUB_STEP_SUMMARY
+          fi
+
